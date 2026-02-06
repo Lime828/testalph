@@ -1,0 +1,3678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Grid with Enhanced Admin</title>
+    <style>
+        :root {
+            /* Color scheme */
+            --primary-color: #4f46e5;
+            --primary-light: #818cf8;
+            --card-bg: #ffffff;
+            --card-shadow: rgba(99, 102, 241, 0.08);
+            --card-shadow-hover: rgba(99, 102, 241, 0.15);
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --border-color: rgba(209, 213, 219, 0.5);
+            --verified-color: #10b981;
+            --category-color: #4f46e5;
+            
+            /* Grid specifications */
+            --gap: 12px;
+            --card-width: 180px;
+            --card-height: 90px;
+            --card-padding: 14px;
+            --border-radius: 10px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.4;
+            background: #f9fafb;
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-dark);
+        }
+        
+        .container {
+            max-width: 1248px;
+            margin: 0 auto;
+        }
+        
+        /* Top Banners Container */
+        .top-banners-container {
+            display: grid;
+            grid-template-columns: repeat(6, var(--card-width));
+            gap: var(--gap);
+            justify-content: center;
+            padding: 20px 0;
+            max-width: 1248px;
+            margin: 0 auto 20px;
+        }
+        
+        /* Main Grid Container */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(6, var(--card-width));
+            gap: var(--gap);
+            justify-content: center;
+            padding: 20px 0;
+            max-width: 1248px;
+            margin: 0 auto;
+        }
+        
+        /* Banner Grid Items */
+        .banner-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 2px solid transparent;
+        }
+        
+        .banner-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            border-color: var(--primary-light);
+        }
+        
+        .banner-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .banner-item:hover .banner-image {
+            transform: scale(1.05);
+        }
+        
+        .banner-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 20px;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
+            color: white;
+            z-index: 2;
+        }
+        
+        .banner-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .banner-text {
+            font-size: 12px;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+        
+        .banner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.7) 0%, rgba(118, 75, 162, 0.7) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1;
+        }
+        
+        .banner-item:hover .banner-overlay {
+            opacity: 1;
+        }
+        
+        .banner-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 24px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 14px;
+            z-index: 3;
+            transition: background 0.2s;
+        }
+        
+        .banner-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Banner sizes */
+        .banner-6x2 {
+            grid-column: span 6;
+            grid-row: span 2;
+            height: calc((var(--card-height) * 2) + var(--gap));
+        }
+        
+        .banner-1x2 {
+            grid-column: span 1;
+            grid-row: span 2;
+            height: calc((var(--card-height) * 2) + var(--gap));
+        }
+        
+        .banner-2x2 {
+            grid-column: span 2;
+            grid-row: span 2;
+            height: calc((var(--card-height) * 2) + var(--gap));
+        }
+        
+        .banner-3x2 {
+            grid-column: span 3;
+            grid-row: span 2;
+            height: calc((var(--card-height) * 2) + var(--gap));
+        }
+        
+        /* Card design with editing features */
+        .card {
+            width: var(--card-width);
+            height: var(--card-height);
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: var(--card-padding);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            box-shadow: 
+                0 2px 4px -1px var(--card-shadow),
+                0 1px 2px -1px var(--card-shadow);
+            text-decoration: none;
+            color: inherit;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 8px 16px -4px var(--card-shadow-hover),
+                0 4px 8px -4px var(--card-shadow-hover);
+            border-color: var(--primary-light);
+            z-index: 10;
+        }
+        
+        /* Card with background image */
+        .card.has-bg-image {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        
+        .card.has-bg-image .category-row,
+        .card.has-bg-image .promo-text,
+        .card.has-bg-image .reaction-icons,
+        .card.has-bg-image .url-indicator {
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            color: white;
+        }
+        
+        /* Thick border style */
+        .card.thick-border {
+            border-width: 3px;
+            border-color: var(--primary-color);
+        }
+        
+        /* Blinking text animation */
+        @keyframes subtleBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .card.blink-text .promo-text {
+            animation: subtleBlink 2s infinite;
+        }
+        
+        /* Category row with enhanced check icon */
+        .category-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        
+        .category-text {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--category-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Enhanced visible check icon - round with check */
+        .verified-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            background: var(--verified-color);
+            border-radius: 50%;
+            flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+            border: 2px solid white;
+        }
+        
+        .verified-icon svg {
+            width: 12px;
+            height: 12px;
+            color: white;
+        }
+        
+        /* Reaction icons beside verified icon - BIGGER */
+        .reaction-icons {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: auto;
+        }
+        
+        .reaction-icon {
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+        
+        .reaction-icon:hover {
+            transform: scale(1.2);
+        }
+        
+        .reaction-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .reaction-icon.thumbs-up svg {
+            color: #3b82f6;
+        }
+        
+        .reaction-icon.heart svg {
+            color: #ef4444;
+        }
+        
+        /* Promo text with formatting options */
+        .promo-text {
+            font-size: 11px;
+            color: var(--text-dark);
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: all 0.3s ease;
+        }
+        
+        .promo-text.bold {
+            font-weight: 700;
+        }
+        
+        /* Admin edit overlay */
+        .card-edit-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(79, 70, 229, 0.9);
+            border-radius: var(--border-radius);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            z-index: 20;
+            color: white;
+            padding: 10px;
+        }
+        
+        .card.admin-mode:hover .card-edit-overlay {
+            display: flex;
+        }
+        
+        .card-edit-btn {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .card-edit-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .card-edit-btn svg {
+            width: 16px;
+            height: 16px;
+            color: white;
+        }
+        
+        /* URL indicator for cards */
+        .url-indicator {
+            position: absolute;
+            bottom: 6px;
+            right: 10px;
+            font-size: 10px;
+            color: var(--text-light);
+            opacity: 0.6;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        /* Enhanced hover card */
+        .enhanced-hover-card {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+            z-index: 100;
+            padding: 15px;
+            margin-top: 5px;
+            min-width: 250px;
+            display: none;
+            pointer-events: auto;
+        }
+        
+        .enhanced-hover-card.show {
+            display: block;
+        }
+        
+        .hover-business-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+        
+        .hover-promo-text {
+            font-size: 12px;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        
+        .hover-visit-btn {
+            display: block;
+            width: 100%;
+            padding: 8px 12px;
+            background: var(--primary-color);
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        
+        .hover-visit-btn:hover {
+            background: var(--primary-light);
+        }
+        
+        /* Click me button for users */
+        .click-me-btn {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary-color);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 5;
+            white-space: nowrap;
+        }
+        
+        .card:hover .click-me-btn {
+            opacity: 1;
+        }
+        
+        /* Shuffle notification */
+        .shuffle-notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .shuffle-notification.show {
+            opacity: 1;
+        }
+        
+        /* Floating Admin Icon */
+        .floating-admin-icon {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .floating-admin-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 25px rgba(79, 70, 229, 0.5);
+        }
+        
+        .floating-admin-icon svg {
+            width: 24px;
+            height: 24px;
+            color: white;
+        }
+        
+        /* Floating Inquiry Icon */
+        .floating-inquiry-icon {
+            position: fixed;
+            bottom: 180px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: #10b981;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .floating-inquiry-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 25px rgba(16, 185, 129, 0.5);
+        }
+        
+        .floating-inquiry-icon svg {
+            width: 24px;
+            height: 24px;
+            color: white;
+        }
+        
+        /* Admin logout button */
+        .admin-logout {
+            position: fixed;
+            bottom: 260px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: #ef4444;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .admin-logout.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .admin-logout:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 25px rgba(239, 68, 68, 0.5);
+        }
+        
+        .admin-logout svg {
+            width: 24px;
+            height: 24px;
+            color: white;
+        }
+        
+        /* Password Protection Modal */
+        .password-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .password-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .password-box {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        
+        .password-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-dark);
+        }
+        
+        .password-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            transition: border 0.2s;
+        }
+        
+        .password-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .password-submit {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .password-submit:hover {
+            background: var(--primary-light);
+        }
+        
+        .password-error {
+            color: #ef4444;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        /* Admin Panel */
+        .admin-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+        
+        .admin-panel.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        .admin-panel-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .admin-panel-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .admin-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .admin-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .admin-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 5px;
+            line-height: 1;
+        }
+        
+        .admin-close:hover {
+            color: var(--text-dark);
+        }
+        
+        /* Admin Tabs */
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        
+        .admin-tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            font-size: 14px;
+            color: var(--text-light);
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .admin-tab:hover {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .admin-tab.active {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        /* Admin Stats Grid */
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .admin-stat-card {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s;
+        }
+        
+        .admin-stat-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .admin-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .admin-stat-label {
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+        
+        /* Download Stats Buttons */
+        .download-stats {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .download-btn {
+            flex: 1;
+            padding: 12px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .download-btn:hover {
+            background: var(--primary-light);
+        }
+        
+        .download-btn.txt {
+            background: #10b981;
+        }
+        
+        .download-btn.txt:hover {
+            background: #0da271;
+        }
+        
+        .download-btn.xls {
+            background: #3b82f6;
+        }
+        
+        .download-btn.xls:hover {
+            background: #2563eb;
+        }
+        
+        /* Save Settings Button */
+        .save-settings-container {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .save-settings-btn {
+            width: 100%;
+            padding: 14px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .save-settings-btn:hover {
+            background: #0da271;
+        }
+        
+        /* Banner Management */
+        .banner-management, .grid-management {
+            display: none;
+        }
+        
+        .banner-management.active, .grid-management.active {
+            display: block;
+        }
+        
+        .banner-size-options, .grid-edit-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .banner-size-option, .grid-edit-option {
+            padding: 20px;
+            background: #f8fafc;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        
+        .banner-size-option:hover, .grid-edit-option:hover {
+            border-color: var(--primary-color);
+            background: rgba(99, 102, 241, 0.05);
+        }
+        
+        .banner-size-option.active, .grid-edit-option.active {
+            border-color: var(--primary-color);
+            background: rgba(99, 102, 241, 0.1);
+        }
+        
+        .banner-size-label, .grid-edit-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+        
+        .banner-size-desc, .grid-edit-desc {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+        
+        /* Grid editing form */
+        .grid-edit-form, .banner-form {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-dark);
+            transition: border 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .color-picker-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .color-picker {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+        }
+        
+        .toggle-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .toggle-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .toggle-checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .toggle-checkbox.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .toggle-checkbox.active::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+        }
+        
+        .image-preview-container {
+            margin-top: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            background: white;
+        }
+        
+        .image-preview {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .no-image-preview {
+            width: 100%;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+            color: var(--text-light);
+            font-size: 14px;
+        }
+        
+        .banner-preview {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            color: white;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .banner-preview-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+        
+        .banner-preview-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .admin-controls {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .admin-control-btn {
+            flex: 1;
+            padding: 12px 20px;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-dark);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .admin-control-btn:hover {
+            background: rgba(99, 102, 241, 0.2);
+        }
+        
+        .admin-control-btn.primary {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        /* Controls */
+        .controls {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin: 20px auto 20px;
+            max-width: 800px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+        
+        .search-container {
+            position: relative;
+            margin-bottom: 16px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 40px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-dark);
+            transition: all 0.2s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-dark);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-btn:hover {
+            background: rgba(99, 102, 241, 0.15);
+        }
+        
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        /* Scroll indicator */
+        .scroll-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 30px;
+            background: var(--primary-color);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+            opacity: 0.9;
+            display: none;
+        }
+        
+        /* Grid Edit Search */
+        .grid-search-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        
+        .grid-search-input {
+            width: 100%;
+            padding: 12px 16px 12px 40px;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-dark);
+            transition: all 0.2s;
+        }
+        
+        .grid-search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+        }
+        
+        .grid-search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+        
+        .grid-search-results {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 5px;
+            display: none;
+            position: absolute;
+            width: 100%;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .grid-search-results.show {
+            display: block;
+        }
+        
+        .grid-search-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s;
+        }
+        
+        .grid-search-item:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+        
+        .grid-search-item:last-child {
+            border-bottom: none;
+        }
+        
+        .grid-search-name {
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+        
+        .grid-search-category {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+        
+        /* Responsive breakpoints */
+        @media (max-width: 1247px) {
+            .top-banners-container,
+            .grid-container {
+                grid-template-columns: repeat(5, var(--card-width));
+                max-width: 1020px;
+            }
+        }
+        
+        @media (max-width: 1020px) {
+            .top-banners-container,
+            .grid-container {
+                grid-template-columns: repeat(4, var(--card-width));
+                max-width: 792px;
+            }
+        }
+        
+        @media (max-width: 792px) {
+            .top-banners-container,
+            .grid-container {
+                grid-template-columns: repeat(3, var(--card-width));
+                max-width: 564px;
+            }
+        }
+        
+        @media (max-width: 564px) {
+            .top-banners-container,
+            .grid-container {
+                grid-template-columns: repeat(2, var(--card-width));
+                max-width: 384px;
+            }
+        }
+        
+        @media (max-width: 384px) {
+            .top-banners-container,
+            .grid-container {
+                grid-template-columns: 1fr;
+                max-width: 300px;
+            }
+            .card, .banner-item {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Password Protection Modal -->
+    <div class="password-modal" id="passwordModal">
+        <div class="password-box">
+            <div class="password-title">Admin Access Required</div>
+            <input type="password" class="password-input" id="passwordInput" placeholder="Enter admin password" autocomplete="off">
+            <button class="password-submit" id="passwordSubmit">Enter Admin Panel</button>
+            <div class="password-error" id="passwordError">Incorrect password. Please try again.</div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Controls -->
+        <div class="controls">
+            <div class="search-container">
+                <div class="search-icon">
+                    <svg fill="currentColor" viewBox="0 0 20 20" width="16" height="16">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <input type="text" class="search-input" id="searchInput" placeholder="Search promotions...">
+            </div>
+            
+            <div class="filter-group">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="verified">Verified</button>
+                <button class="filter-btn" data-filter="tech">Tech</button>
+                <button class="filter-btn" data-filter="retail">Retail</button>
+                <button class="filter-btn" data-filter="food">Food</button>
+                <button class="filter-btn" data-filter="service">Services</button>
+                <button class="filter-btn" data-filter="health">Health</button>
+            </div>
+        </div>
+        
+        <!-- Top Banners -->
+        <div class="top-banners-container" id="topBannersContainer">
+            <!-- Top banners will be added here by admin -->
+        </div>
+        
+        <!-- Main Grid -->
+        <div class="grid-container" id="gridContainer">
+            <!-- Cards and banners will be mixed here -->
+        </div>
+    </div>
+    
+    <!-- Shuffle Notification -->
+    <div class="shuffle-notification" id="shuffleNotification">
+        <svg fill="currentColor" viewBox="0 0 20 20" width="16" height="16">
+            <path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd"></path>
+        </svg>
+        Grid shuffled! All businesses get equal exposure
+    </div>
+    
+    <!-- Floating Icons -->
+    <div class="floating-admin-icon" id="adminIcon">
+        <svg fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
+        </svg>
+    </div>
+    
+    <div class="floating-inquiry-icon" id="inquiryIcon">
+        <svg fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z" clip-rule="evenodd"></path>
+        </svg>
+    </div>
+    
+    <!-- Admin Logout Button -->
+    <div class="admin-logout" id="adminLogout">
+        <svg fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"></path>
+        </svg>
+    </div>
+    
+    <!-- Scroll indicator -->
+    <div class="scroll-indicator" id="scrollIndicator">1000 Items</div>
+    
+    <!-- Admin Panel -->
+    <div class="admin-panel-overlay" id="adminOverlay"></div>
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-header">
+            <div class="admin-title">
+                <svg fill="currentColor" viewBox="0 0 20 20" width="24" height="24">
+                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path>
+                </svg>
+                Admin Panel
+            </div>
+            <button class="admin-close" id="adminClose">&times;</button>
+        </div>
+        
+        <div class="admin-tabs">
+            <button class="admin-tab active" data-tab="stats">Statistics</button>
+            <button class="admin-tab" data-tab="banner">Banner Management</button>
+            <button class="admin-tab" data-tab="grid">Grid Editing</button>
+        </div>
+        
+        <!-- Statistics Tab -->
+        <div class="admin-tab-content" id="statsTab">
+            <div class="download-stats">
+                <button class="download-btn txt" id="downloadTxtBtn">
+                    <svg fill="currentColor" viewBox="0 0 20 20" width="16" height="16">
+                        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                    </svg>
+                    Download TXT
+                </button>
+                <button class="download-btn xls" id="downloadXlsBtn">
+                    <svg fill="currentColor" viewBox="0 0 20 20" width="16" height="16">
+                        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                    </svg>
+                    Download XLS
+                </button>
+            </div>
+            
+            <div class="admin-stats">
+                <div class="admin-stat-card">
+                    <div class="admin-stat-value" id="adminTotalCards">1000</div>
+                    <div class="admin-stat-label">Total Businesses</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="admin-stat-value" id="adminVerifiedCount">650</div>
+                    <div class="admin-stat-label">Verified</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="admin-stat-value" id="adminVisibleCards">1000</div>
+                    <div class="admin-stat-label">Displayed</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="admin-stat-value" id="adminCategories">12</div>
+                    <div class="admin-stat-label">Categories</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="admin-stat-value" id="adminActiveBanners">0</div>
+                    <div class="admin-stat-label">Active Banners</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="admin-stat-value" id="adminAddedByAdmin">0</div>
+                    <div class="admin-stat-label">Added by Admin</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="admin-stat-value" id="adminEditedByAdmin">0</div>
+                    <div class="admin-stat-label">Edited by Admin</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="admin-stat-value" id="adminDeletedByAdmin">0</div>
+                    <div class="admin-stat-label">Deleted by Admin</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="admin-stat-value" id="adminBoldText">0</div>
+                    <div class="admin-stat-label">Bold Text</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="admin-stat-value" id="adminBlinkText">0</div>
+                    <div class="admin-stat-label">Blinking Text</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="admin-stat-value" id="adminVerifiedBadge">0</div>
+                    <div class="admin-stat-label">Verified Badge</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="admin-stat-value" id="adminThickBorder">0</div>
+                    <div class="admin-stat-label">Thick Border</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="admin-stat-value" id="adminThumbsUpIcon">0</div>
+                    <div class="admin-stat-label">Thumbs Up Icon</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="admin-stat-value" id="adminHeartIcon">0</div>
+                    <div class="admin-stat-label">Heart Icon</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="admin-stat-value" id="adminShuffleCount">0</div>
+                    <div class="admin-stat-label">Shuffles Today</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="admin-stat-value" id="adminTotalClicks">0</div>
+                    <div class="admin-stat-label">Total Clicks</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="admin-stat-value" id="adminTotalViews">0</div>
+                    <div class="admin-stat-label">Total Views</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="admin-stat-value" id="adminClickRate">0%</div>
+                    <div class="admin-stat-label">Click-Through Rate</div>
+                </div>
+            </div>
+            
+            <div class="admin-controls">
+                <button class="admin-control-btn" id="addBusinessBtn">
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"></path>
+                    </svg>
+                    Add New Business
+                </button>
+                <button class="admin-control-btn" id="shuffleNowBtn">
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd"></path>
+                    </svg>
+                    Shuffle Now
+                </button>
+                <button class="admin-control-btn" id="pauseShuffleBtn">
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    Pause Shuffle
+                </button>
+            </div>
+            
+            <div class="save-settings-container">
+                <button class="save-settings-btn" id="saveSettingsBtn">
+                    <svg fill="currentColor" viewBox="0 0 20 20" width="20" height="20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    Save All Settings
+                </button>
+            </div>
+        </div>
+        
+        <!-- Banner Management Tab -->
+        <div class="admin-tab-content banner-management" id="bannerTab">
+            <div class="banner-size-options">
+                <div class="banner-size-option active" data-size="6x2">
+                    <div class="banner-size-label">6×2 Top Banner</div>
+                    <div class="banner-size-desc">Full width top position</div>
+                </div>
+                <div class="banner-size-option" data-size="3x2">
+                    <div class="banner-size-label">3×2 Top Banner</div>
+                    <div class="banner-size-desc">Half width top position</div>
+                </div>
+                <div class="banner-size-option" data-size="2x2">
+                    <div class="banner-size-label">2×2 Grid Banner</div>
+                    <div class="banner-size-desc">Mixed with businesses</div>
+                </div>
+                <div class="banner-size-option" data-size="1x2">
+                    <div class="banner-size-label">1×2 Grid Banner</div>
+                    <div class="banner-size-desc">Single column in grid</div>
+                </div>
+            </div>
+            
+            <div class="banner-form">
+                <div class="form-group">
+                    <label class="form-label">Banner Title</label>
+                    <input type="text" class="form-input" id="bannerTitle" placeholder="Enter banner title">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Banner Text</label>
+                    <textarea class="form-input form-textarea" id="bannerText" rows="2" placeholder="Enter banner description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Banner Image URL</label>
+                    <input type="text" class="form-input" id="bannerImageUrl" placeholder="Enter image URL (optional)">
+                    <div class="image-preview-container">
+                        <div id="imagePreviewPlaceholder" class="no-image-preview">
+                            No image selected
+                        </div>
+                        <img id="imagePreview" class="image-preview" style="display: none;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Link URL (Facebook page, website, etc.)</label>
+                    <input type="text" class="form-input" id="bannerLinkUrl" placeholder="https://example.com or https://facebook.com/page">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Background Color (if no image)</label>
+                    <input type="color" class="form-input" id="bannerColor" value="#667eea">
+                </div>
+                
+                <div class="banner-preview" id="bannerPreview">
+                    <div class="banner-preview-content">
+                        <div class="banner-title">Preview Banner Title</div>
+                        <div class="banner-text">Preview banner description text will appear here</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="admin-controls">
+                <button class="admin-control-btn" id="clearBannerBtn">
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    Clear All Banners
+                </button>
+                <button class="admin-control-btn primary" id="addBannerBtn">
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"></path>
+                    </svg>
+                    Add Banner
+                </button>
+            </div>
+        </div>
+        
+        <!-- Grid Editing Tab -->
+        <div class="admin-tab-content grid-management" id="gridTab">
+            <div class="grid-search-container">
+                <div class="grid-search-icon">
+                    <svg fill="currentColor" viewBox="0 0 20 20" width="16" height="16">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <input type="text" class="grid-search-input" id="gridSearchInput" placeholder="Search business by name or ID...">
+                <div class="grid-search-results" id="gridSearchResults"></div>
+            </div>
+            
+            <div class="grid-edit-form" id="gridEditForm" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">Business Name</label>
+                    <input type="text" class="form-input" id="gridBusinessName" placeholder="Enter business name">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Business Category</label>
+                    <select class="form-input" id="gridCategory">
+                        <option value="">Select Category</option>
+                        <option value="Tech">Tech</option>
+                        <option value="Retail">Retail</option>
+                        <option value="Food">Food</option>
+                        <option value="Service">Service</option>
+                        <option value="Health">Health</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Education">Education</option>
+                        <option value="Automotive">Automotive</option>
+                        <option value="Real Estate">Real Estate</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Travel">Travel</option>
+                        <option value="Manufacturing">Manufacturing</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Grid Content</label>
+                    <textarea class="form-input form-textarea" id="gridContent" rows="3" placeholder="Edit grid text content"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Website URL</label>
+                    <input type="text" class="form-input" id="gridWebsiteUrl" placeholder="https://example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Grid Background Color</label>
+                    <div class="color-picker-group">
+                        <input type="color" class="color-picker" id="gridBgColor" value="#ffffff">
+                        <input type="text" class="form-input" id="gridBgColorHex" value="#ffffff" style="flex: 1;">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Text Color</label>
+                    <div class="color-picker-group">
+                        <input type="color" class="color-picker" id="gridTextColor" value="#1f2937">
+                        <input type="text" class="form-input" id="gridTextColorHex" value="#1f2937" style="flex: 1;">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Background Image URL (optional)</label>
+                    <input type="text" class="form-input" id="gridImageUrl" placeholder="Enter image URL for background">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Text Formatting</label>
+                    <div class="toggle-group">
+                        <div class="toggle-option" id="toggleBold">
+                            <div class="toggle-checkbox"></div>
+                            <span>Bold Text</span>
+                        </div>
+                        <div class="toggle-option" id="toggleBlink">
+                            <div class="toggle-checkbox"></div>
+                            <span>Blinking Text</span>
+                        </div>
+                        <div class="toggle-option" id="toggleVerified">
+                            <div class="toggle-checkbox"></div>
+                            <span>Verified Badge</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Border Style</label>
+                    <div class="toggle-group">
+                        <div class="toggle-option" id="toggleThickBorder">
+                            <div class="toggle-checkbox"></div>
+                            <span>Thick Border</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Reaction Icons</label>
+                    <div class="toggle-group">
+                        <div class="toggle-option" id="toggleThumbsUp">
+                            <div class="toggle-checkbox"></div>
+                            <span>Thumbs Up Icon</span>
+                        </div>
+                        <div class="toggle-option" id="toggleHeart">
+                            <div class="toggle-checkbox"></div>
+                            <span>Heart Icon</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="admin-controls">
+                    <button class="admin-control-btn" id="deleteGridBtn">
+                        <svg fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        Delete Grid
+                    </button>
+                    <button class="admin-control-btn primary" id="saveGridBtn">
+                        <svg fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const TOTAL_CARDS = 1000;
+        const CARD_WIDTH = 180;
+        const CARD_HEIGHT = 90;
+        const GAP = 12;
+        const SHUFFLE_INTERVAL = 30000; // 30 seconds
+        const ADMIN_PASSWORD = "adlinkph"; // Admin password
+        const STORAGE_KEY = 'business_grid_settings';
+        
+        // Default websites for business cards
+        const defaultWebsites = [
+            'https://facebook.com/business',
+            'https://twitter.com/business',
+            'https://instagram.com/business',
+            'https://linkedin.com/company',
+            'https://example.com',
+            'https://business-website.com',
+            'https://store.example.com',
+            'https://app.example.com',
+            'https://booking.example.com',
+            'https://shop.example.com'
+        ];
+        
+        // Default business names
+        const businessNames = [
+            'Tech Innovators Inc.',
+            'Retail Masters',
+            'Food Delight Co.',
+            'Service Excellence LLC',
+            'Health & Wellness Center',
+            'Financial Solutions Pro',
+            'EduTech Academy',
+            'Auto Experts Garage',
+            'Real Estate Partners',
+            'Entertainment Hub',
+            'Travel Adventures',
+            'Manufacturing Solutions',
+            'Digital Marketing Pros',
+            'Consulting Experts',
+            'Software Solutions',
+            'E-commerce Store',
+            'Restaurant Chain',
+            'Medical Clinic',
+            'Law Firm Partners',
+            'Construction Co.'
+        ];
+        
+        // Categories data
+        const categories = [
+            { name: 'Tech', verifiedRate: 0.8 },
+            { name: 'Retail', verifiedRate: 0.6 },
+            { name: 'Food', verifiedRate: 0.5 },
+            { name: 'Service', verifiedRate: 0.7 },
+            { name: 'Health', verifiedRate: 0.9 },
+            { name: 'Finance', verifiedRate: 0.85 },
+            { name: 'Education', verifiedRate: 0.75 },
+            { name: 'Automotive', verifiedRate: 0.55 },
+            { name: 'Real Estate', verifiedRate: 0.65 },
+            { name: 'Entertainment', verifiedRate: 0.45 },
+            { name: 'Travel', verifiedRate: 0.7 },
+            { name: 'Manufacturing', verifiedRate: 0.6 }
+        ];
+        
+        const promoTexts = [
+            '30% off annual subscription plans',
+            'Free consultation for new clients',
+            'Limited time bundle pricing',
+            '50% off first service order',
+            'Extended warranty included',
+            'Free installation service',
+            '25% off for referrals',
+            'Buy one get one 50% off',
+            'Early bird special pricing',
+            'Complimentary service upgrade',
+            'Exclusive webinar access',
+            'Free trial period available',
+            'Corporate rates for teams',
+            '40% off selected items',
+            'First month completely free',
+            'VIP priority access included',
+            'Free delivery on all orders',
+            'Premium support 24/7',
+            'Custom solutions available',
+            'Quality guaranteed or refund'
+        ];
+        
+        // DOM Elements
+        const passwordModal = document.getElementById('passwordModal');
+        const passwordInput = document.getElementById('passwordInput');
+        const passwordSubmit = document.getElementById('passwordSubmit');
+        const passwordError = document.getElementById('passwordError');
+        const gridContainer = document.getElementById('gridContainer');
+        const topBannersContainer = document.getElementById('topBannersContainer');
+        const searchInput = document.getElementById('searchInput');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const scrollIndicator = document.getElementById('scrollIndicator');
+        const shuffleNotification = document.getElementById('shuffleNotification');
+        const adminIcon = document.getElementById('adminIcon');
+        const inquiryIcon = document.getElementById('inquiryIcon');
+        const adminLogout = document.getElementById('adminLogout');
+        const adminPanel = document.getElementById('adminPanel');
+        const adminOverlay = document.getElementById('adminOverlay');
+        const adminClose = document.getElementById('adminClose');
+        const adminTabs = document.querySelectorAll('.admin-tab');
+        
+        // Admin stats elements
+        const adminTotalCards = document.getElementById('adminTotalCards');
+        const adminVerifiedCount = document.getElementById('adminVerifiedCount');
+        const adminVisibleCards = document.getElementById('adminVisibleCards');
+        const adminCategories = document.getElementById('adminCategories');
+        const adminActiveBanners = document.getElementById('adminActiveBanners');
+        const adminAddedByAdmin = document.getElementById('adminAddedByAdmin');
+        const adminEditedByAdmin = document.getElementById('adminEditedByAdmin');
+        const adminDeletedByAdmin = document.getElementById('adminDeletedByAdmin');
+        const adminBoldText = document.getElementById('adminBoldText');
+        const adminBlinkText = document.getElementById('adminBlinkText');
+        const adminVerifiedBadge = document.getElementById('adminVerifiedBadge');
+        const adminThickBorder = document.getElementById('adminThickBorder');
+        const adminThumbsUpIcon = document.getElementById('adminThumbsUpIcon');
+        const adminHeartIcon = document.getElementById('adminHeartIcon');
+        const adminTotalClicks = document.getElementById('adminTotalClicks');
+        const adminShuffleCount = document.getElementById('adminShuffleCount');
+        const adminTotalViews = document.getElementById('adminTotalViews');
+        const adminClickRate = document.getElementById('adminClickRate');
+        
+        // Download buttons
+        const downloadTxtBtn = document.getElementById('downloadTxtBtn');
+        const downloadXlsBtn = document.getElementById('downloadXlsBtn');
+        
+        // Banner management elements
+        const bannerSizeOptions = document.querySelectorAll('.banner-size-option');
+        const bannerTitleInput = document.getElementById('bannerTitle');
+        const bannerTextInput = document.getElementById('bannerText');
+        const bannerImageUrlInput = document.getElementById('bannerImageUrl');
+        const bannerLinkUrlInput = document.getElementById('bannerLinkUrl');
+        const bannerColorInput = document.getElementById('bannerColor');
+        const bannerPreview = document.getElementById('bannerPreview');
+        const imagePreview = document.getElementById('imagePreview');
+        const imagePreviewPlaceholder = document.getElementById('imagePreviewPlaceholder');
+        const addBannerBtn = document.getElementById('addBannerBtn');
+        const clearBannerBtn = document.getElementById('clearBannerBtn');
+        const addBusinessBtn = document.getElementById('addBusinessBtn');
+        const shuffleNowBtn = document.getElementById('shuffleNowBtn');
+        const pauseShuffleBtn = document.getElementById('pauseShuffleBtn');
+        const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+        
+        // Grid editing elements
+        const gridSearchInput = document.getElementById('gridSearchInput');
+        const gridSearchResults = document.getElementById('gridSearchResults');
+        const gridSelect = document.getElementById('gridSelect');
+        const gridEditForm = document.getElementById('gridEditForm');
+        const gridBusinessName = document.getElementById('gridBusinessName');
+        const gridCategory = document.getElementById('gridCategory');
+        const gridContent = document.getElementById('gridContent');
+        const gridWebsiteUrl = document.getElementById('gridWebsiteUrl');
+        const gridBgColor = document.getElementById('gridBgColor');
+        const gridBgColorHex = document.getElementById('gridBgColorHex');
+        const gridTextColor = document.getElementById('gridTextColor');
+        const gridTextColorHex = document.getElementById('gridTextColorHex');
+        const gridImageUrl = document.getElementById('gridImageUrl');
+        const toggleBold = document.getElementById('toggleBold');
+        const toggleBlink = document.getElementById('toggleBlink');
+        const toggleVerified = document.getElementById('toggleVerified');
+        const toggleThickBorder = document.getElementById('toggleThickBorder');
+        const toggleThumbsUp = document.getElementById('toggleThumbsUp');
+        const toggleHeart = document.getElementById('toggleHeart');
+        const deleteGridBtn = document.getElementById('deleteGridBtn');
+        const saveGridBtn = document.getElementById('saveGridBtn');
+        
+        // State
+        let currentFilter = 'all';
+        let currentSearch = '';
+        let allBusinesses = [];
+        let topBanners = [];
+        let gridBanners = [];
+        let selectedBannerSize = '6x2';
+        let totalClicks = 0;
+        let totalViews = 0;
+        let shuffleCount = 0;
+        let shuffleTimer = null;
+        let currentlyEditingGrid = null;
+        let isAdminAuthenticated = false;
+        let hoverTimer = null;
+        let currentHoverCard = null;
+        let isShufflePaused = false;
+        
+        // Admin tracking
+        let businessesAddedByAdmin = 0;
+        let businessesEditedByAdmin = 0;
+        let businessesDeletedByAdmin = 0;
+        
+        // Initialize
+        function init() {
+            loadSettings();
+            generateBusinessData();
+            startShuffleTimer();
+            renderTopBanners();
+            renderMixedGrid();
+            setupEventListeners();
+            updateAdminStats();
+            updateBannerPreview();
+            
+            // Hide scroll indicator after 5 seconds
+            setTimeout(() => {
+                scrollIndicator.style.opacity = '0';
+                setTimeout(() => scrollIndicator.style.display = 'none', 500);
+            }, 5000);
+            
+            // Show initial shuffle message
+            showShuffleNotification('Grid will shuffle every 30 seconds for equal exposure');
+        }
+        
+        // Load settings from localStorage
+        function loadSettings() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    allBusinesses = data.allBusinesses || [];
+                    topBanners = data.topBanners || [];
+                    gridBanners = data.gridBanners || [];
+                    businessesAddedByAdmin = data.businessesAddedByAdmin || 0;
+                    businessesEditedByAdmin = data.businessesEditedByAdmin || 0;
+                    businessesDeletedByAdmin = data.businessesDeletedByAdmin || 0;
+                    totalClicks = data.totalClicks || 0;
+                    totalViews = data.totalViews || 0;
+                    shuffleCount = data.shuffleCount || 0;
+                    
+                    console.log('Settings loaded from localStorage');
+                    return;
+                } catch (e) {
+                    console.error('Error loading settings:', e);
+                }
+            }
+            
+            // Generate default data if no saved settings
+            generateBusinessData();
+        }
+        
+        // Save settings to localStorage
+        function saveSettings() {
+            const data = {
+                allBusinesses: allBusinesses,
+                topBanners: topBanners,
+                gridBanners: gridBanners,
+                businessesAddedByAdmin: businessesAddedByAdmin,
+                businessesEditedByAdmin: businessesEditedByAdmin,
+                businessesDeletedByAdmin: businessesDeletedByAdmin,
+                totalClicks: totalClicks,
+                totalViews: totalViews,
+                shuffleCount: shuffleCount,
+                savedAt: new Date().toISOString()
+            };
+            
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            showShuffleNotification('All settings saved successfully!');
+            console.log('Settings saved to localStorage');
+        }
+        
+        // Generate 1000 business entries
+        function generateBusinessData() {
+            allBusinesses = [];
+            
+            for (let i = 1; i <= TOTAL_CARDS; i++) {
+                const category = categories[Math.floor(Math.random() * categories.length)];
+                const promo = promoTexts[Math.floor(Math.random() * promoTexts.length)];
+                const businessName = businessNames[Math.floor(Math.random() * businessNames.length)];
+                
+                // Determine if verified based on category verified rate
+                const isVerified = Math.random() < category.verifiedRate;
+                
+                // Generate promotion text variation
+                const promoVariations = [
+                    `${promo} - Limited spots!`,
+                    `${promo}. Contact us today!`,
+                    `Special offer: ${promo.toLowerCase()}`,
+                    `${promo}. Valid until month end.`,
+                    `Exclusive: ${promo.toLowerCase()}`
+                ];
+                
+                const finalPromo = promoVariations[Math.floor(Math.random() * promoVariations.length)];
+                
+                // Assign a random website URL
+                const website = defaultWebsites[Math.floor(Math.random() * defaultWebsites.length)];
+                
+                const business = {
+                    id: i,
+                    businessName: `${businessName} ${i}`,
+                    category: category.name,
+                    promo: finalPromo.length > 70 ? finalPromo.substring(0, 70) + '...' : finalPromo,
+                    verified: isVerified,
+                    website: website,
+                    views: 0,
+                    clicks: 0,
+                    lastPosition: 0,
+                    // Grid editing properties
+                    backgroundColor: '#ffffff',
+                    textColor: '#1f2937',
+                    boldText: false,
+                    blinkText: false,
+                    thickBorder: false,
+                    showVerified: isVerified,
+                    hasThumbsUp: false,
+                    hasHeart: false,
+                    backgroundImage: null,
+                    isCustomized: false,
+                    addedByAdmin: false,
+                    editedByAdmin: false
+                };
+                
+                allBusinesses.push(business);
+            }
+            
+            // Initial shuffle
+            shuffleBusinesses();
+        }
+        
+        // Fisher-Yates shuffle algorithm
+        function shuffleBusinesses() {
+            if (isShufflePaused) return;
+            
+            let shuffled = [...allBusinesses];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            
+            // Update last position for analytics
+            shuffled.forEach((business, index) => {
+                business.lastPosition = index;
+            });
+            
+            allBusinesses = shuffled;
+            shuffleCount++;
+            
+            // Show notification
+            showShuffleNotification('Grid shuffled! All businesses get equal exposure');
+            
+            // Update admin stats
+            updateAdminStats();
+            
+            // Re-render if not searching/filtering
+            if (currentFilter === 'all' && currentSearch === '') {
+                renderMixedGrid();
+            }
+        }
+        
+        // Start shuffle timer
+        function startShuffleTimer() {
+            if (shuffleTimer) clearInterval(shuffleTimer);
+            
+            shuffleTimer = setInterval(() => {
+                shuffleBusinesses();
+            }, SHUFFLE_INTERVAL);
+        }
+        
+        // Toggle shuffle pause
+        function toggleShufflePause() {
+            isShufflePaused = !isShufflePaused;
+            
+            if (isShufflePaused) {
+                pauseShuffleBtn.innerHTML = `
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
+                    </svg>
+                    Resume Shuffle
+                `;
+                showShuffleNotification('Shuffle paused');
+            } else {
+                pauseShuffleBtn.innerHTML = `
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    Pause Shuffle
+                `;
+                showShuffleNotification('Shuffle resumed');
+                // Do an immediate shuffle when resuming
+                shuffleBusinesses();
+            }
+        }
+        
+        // Show shuffle notification
+        function showShuffleNotification(message) {
+            if (shuffleNotification.textContent !== message) {
+                shuffleNotification.textContent = message;
+            }
+            
+            shuffleNotification.classList.add('show');
+            
+            setTimeout(() => {
+                shuffleNotification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Filter businesses
+        function filterBusinesses() {
+            return allBusinesses.filter(business => {
+                // Apply search filter
+                if (currentSearch && !(
+                    business.promo.toLowerCase().includes(currentSearch) ||
+                    business.category.toLowerCase().includes(currentSearch) ||
+                    business.businessName.toLowerCase().includes(currentSearch)
+                )) {
+                    return false;
+                }
+                
+                // Apply category filter
+                if (currentFilter !== 'all' && currentFilter !== 'verified') {
+                    if (currentFilter !== business.category.toLowerCase()) {
+                        return false;
+                    }
+                }
+                
+                // Apply verified filter
+                if (currentFilter === 'verified' && !business.verified) {
+                    return false;
+                }
+                
+                return true;
+            });
+        }
+        
+        // Render top banners (6x2 and 3x2)
+        function renderTopBanners() {
+            topBannersContainer.innerHTML = '';
+            
+            // Sort banners: 6x2 first, then 3x2
+            const sortedBanners = [...topBanners].sort((a, b) => {
+                if (a.size === '6x2' && b.size !== '6x2') return -1;
+                if (a.size !== '6x2' && b.size === '6x2') return 1;
+                return 0;
+            });
+            
+            sortedBanners.forEach((banner, index) => {
+                const bannerElement = createBannerElement(banner, index, true);
+                topBannersContainer.appendChild(bannerElement);
+            });
+        }
+        
+        // Render mixed grid (cards + 1x2, 2x2 banners)
+        function renderMixedGrid() {
+            const filtered = filterBusinesses();
+            
+            // Clear grid
+            gridContainer.innerHTML = '';
+            
+            // Create a mixed array of businesses and grid banners
+            const mixedItems = [...filtered];
+            
+            // Insert grid banners at strategic positions (every 8-12 items)
+            let position = 0;
+            gridBanners.forEach(banner => {
+                // Find a position to insert the banner (every 8-12 items)
+                const insertPosition = Math.min(position + 8 + Math.floor(Math.random() * 5), mixedItems.length);
+                mixedItems.splice(insertPosition, 0, { ...banner, isBanner: true });
+                position = insertPosition;
+            });
+            
+            // Render mixed items
+            mixedItems.forEach((item, index) => {
+                if (item.isBanner) {
+                    const bannerElement = createBannerElement(item, index, false);
+                    gridContainer.appendChild(bannerElement);
+                } else {
+                    const card = createCardElement(item);
+                    gridContainer.appendChild(card);
+                    
+                    // Track view
+                    item.views++;
+                    totalViews++;
+                }
+            });
+            
+            updateAdminStats();
+        }
+        
+        // Create banner element with image support
+        function createBannerElement(banner, index, isTopBanner) {
+            const bannerElement = document.createElement('div');
+            bannerElement.className = `banner-item banner-${banner.size}`;
+            
+            // Create image if URL is provided
+            let imageHtml = '';
+            if (banner.imageUrl) {
+                imageHtml = `<img src="${banner.imageUrl}" alt="${banner.title}" class="banner-image" onerror="this.style.display='none'">`;
+            }
+            
+            bannerElement.innerHTML = `
+                ${imageHtml}
+                <div class="banner-overlay">
+                    <div class="banner-title">${banner.title}</div>
+                    <div class="banner-text">${banner.text}</div>
+                </div>
+                <div class="banner-content">
+                    <div class="banner-title">${banner.title}</div>
+                    <div class="banner-text">${banner.text}</div>
+                </div>
+                ${isAdminAuthenticated ? `<div class="banner-close" data-index="${index}" data-top="${isTopBanner}">&times;</div>` : ''}
+            `;
+            
+            // Set background color if no image
+            if (!banner.imageUrl) {
+                bannerElement.style.background = banner.color || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            }
+            
+            // Add click event for banner (opens link in new tab)
+            bannerElement.addEventListener('click', (e) => {
+                if (!e.target.classList.contains('banner-close')) {
+                    totalClicks++;
+                    updateAdminStats();
+                    
+                    if (banner.linkUrl) {
+                        // Open link in new tab
+                        window.open(banner.linkUrl, '_blank');
+                    } else {
+                        alert(`Banner clicked: ${banner.title}\n\nNo link URL configured for this banner.`);
+                    }
+                }
+            });
+            
+            return bannerElement;
+        }
+        
+        // Create card element with editing features
+        function createCardElement(business) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.dataset.id = business.id;
+            
+            // Apply styling based on business properties
+            if (business.thickBorder) {
+                card.classList.add('thick-border');
+            }
+            
+            if (business.blinkText) {
+                card.classList.add('blink-text');
+            }
+            
+            if (business.backgroundImage) {
+                card.classList.add('has-bg-image');
+                card.style.backgroundImage = `url('${business.backgroundImage}')`;
+            } else {
+                card.style.backgroundColor = business.backgroundColor;
+            }
+            
+            // Create reaction icons
+            let reactionIconsHtml = '';
+            if (business.hasThumbsUp || business.hasHeart) {
+                reactionIconsHtml = '<div class="reaction-icons">';
+                if (business.hasThumbsUp) {
+                    reactionIconsHtml += `
+                        <div class="reaction-icon thumbs-up">
+                            <svg fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"></path>
+                            </svg>
+                        </div>
+                    `;
+                }
+                if (business.hasHeart) {
+                    reactionIconsHtml += `
+                        <div class="reaction-icon heart">
+                            <svg fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                    `;
+                }
+                reactionIconsHtml += '</div>';
+            }
+            
+            // Category row with reaction icons
+            const categoryRow = document.createElement('div');
+            categoryRow.className = 'category-row';
+            
+            // Add enhanced check icon if verified and showVerified is true
+            if (business.verified && business.showVerified) {
+                const verifiedIcon = document.createElement('div');
+                verifiedIcon.className = 'verified-icon';
+                verifiedIcon.innerHTML = `
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                `;
+                categoryRow.appendChild(verifiedIcon);
+            }
+            
+            // Business type (category)
+            const categoryText = document.createElement('div');
+            categoryText.className = 'category-text';
+            categoryText.textContent = business.category;
+            categoryText.style.color = business.textColor;
+            categoryRow.appendChild(categoryText);
+            
+            // Add reaction icons to category row
+            if (business.hasThumbsUp || business.hasHeart) {
+                const reactionContainer = document.createElement('div');
+                reactionContainer.className = 'reaction-icons';
+                
+                if (business.hasThumbsUp) {
+                    const thumbsUp = document.createElement('div');
+                    thumbsUp.className = 'reaction-icon thumbs-up';
+                    thumbsUp.innerHTML = `
+                        <svg fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"></path>
+                        </svg>
+                    `;
+                    reactionContainer.appendChild(thumbsUp);
+                }
+                
+                if (business.hasHeart) {
+                    const heart = document.createElement('div');
+                    heart.className = 'reaction-icon heart';
+                    heart.innerHTML = `
+                        <svg fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
+                        </svg>
+                    `;
+                    reactionContainer.appendChild(heart);
+                }
+                
+                categoryRow.appendChild(reactionContainer);
+            }
+            
+            // Promo text with formatting
+            const promoText = document.createElement('div');
+            promoText.className = 'promo-text';
+            promoText.textContent = business.promo;
+            promoText.style.color = business.textColor;
+            
+            if (business.boldText) {
+                promoText.classList.add('bold');
+            }
+            
+            // URL indicator
+            const urlIndicator = document.createElement('div');
+            urlIndicator.className = 'url-indicator';
+            urlIndicator.innerHTML = `
+                <svg width="10" height="10" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd"></path>
+                </svg>
+                ${new URL(business.website).hostname}
+            `;
+            
+            // "Click me" button for non-admin users
+            const clickMeBtn = document.createElement('div');
+            clickMeBtn.className = 'click-me-btn';
+            clickMeBtn.textContent = 'Click me';
+            
+            // Admin edit overlay (only visible to admin)
+            const editOverlay = document.createElement('div');
+            editOverlay.className = 'card-edit-overlay';
+            editOverlay.innerHTML = `
+                <div class="card-edit-btn" data-action="edit">
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
+                    </svg>
+                </div>
+                <div class="card-edit-btn" data-action="delete">
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+            `;
+            
+            // Enhanced hover card for non-admin users
+            const hoverCard = document.createElement('div');
+            hoverCard.className = 'enhanced-hover-card';
+            hoverCard.innerHTML = `
+                <div class="hover-business-name">${business.businessName}</div>
+                <div class="hover-promo-text">${business.promo}</div>
+                <a href="${business.website}" target="_blank" class="hover-visit-btn">Click here to visit website</a>
+            `;
+            
+            // Assemble card
+            card.appendChild(categoryRow);
+            card.appendChild(promoText);
+            card.appendChild(clickMeBtn);
+            card.appendChild(urlIndicator);
+            card.appendChild(editOverlay);
+            card.appendChild(hoverCard);
+            
+            // Click event to visit website
+            card.addEventListener('click', (e) => {
+                // Don't track clicks on edit buttons or hover card
+                if (!e.target.closest('.card-edit-btn') && !e.target.closest('.enhanced-hover-card') && !e.target.classList.contains('click-me-btn')) {
+                    // If admin is logged in and double clicked, open edit panel
+                    if (isAdminAuthenticated && e.detail === 2) {
+                        e.preventDefault();
+                        editGrid(business);
+                        return;
+                    }
+                    
+                    totalClicks++;
+                    business.clicks++;
+                    updateAdminStats();
+                    
+                    // Open website in new tab
+                    window.open(business.website, '_blank');
+                }
+            });
+            
+            // "Click me" button click handler
+            clickMeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                totalClicks++;
+                business.clicks++;
+                updateAdminStats();
+                window.open(business.website, '_blank');
+            });
+            
+            // Hover effect for enhanced card (works for all users)
+            card.addEventListener('mouseenter', () => {
+                if (hoverTimer) clearTimeout(hoverTimer);
+                
+                hoverTimer = setTimeout(() => {
+                    if (currentHoverCard && currentHoverCard !== hoverCard) {
+                        currentHoverCard.classList.remove('show');
+                    }
+                    hoverCard.classList.add('show');
+                    currentHoverCard = hoverCard;
+                }, 300);
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                if (hoverTimer) clearTimeout(hoverTimer);
+                
+                setTimeout(() => {
+                    if (!hoverCard.matches(':hover') && !card.matches(':hover')) {
+                        hoverCard.classList.remove('show');
+                        if (currentHoverCard === hoverCard) {
+                            currentHoverCard = null;
+                        }
+                    }
+                }, 100);
+            });
+            
+            // Only show edit overlay for admin users
+            if (isAdminAuthenticated) {
+                card.classList.add('admin-mode');
+                
+                card.addEventListener('mouseenter', () => {
+                    editOverlay.style.display = 'flex';
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    if (!editOverlay.matches(':hover')) {
+                        editOverlay.style.display = 'none';
+                    }
+                });
+                
+                editOverlay.querySelector('[data-action="edit"]').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    editGrid(business);
+                });
+                
+                editOverlay.querySelector('[data-action="delete"]').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    deleteGrid(business);
+                });
+            } else {
+                editOverlay.style.display = 'none';
+            }
+            
+            return card;
+        }
+        
+        // Search business for editing
+        function searchBusinesses(query) {
+            if (!query.trim()) {
+                gridSearchResults.classList.remove('show');
+                return;
+            }
+            
+            const searchTerm = query.toLowerCase();
+            const results = allBusinesses.filter(business => 
+                business.businessName.toLowerCase().includes(searchTerm) ||
+                business.id.toString().includes(searchTerm) ||
+                business.category.toLowerCase().includes(searchTerm) ||
+                business.promo.toLowerCase().includes(searchTerm)
+            ).slice(0, 10); // Limit to 10 results
+            
+            if (results.length === 0) {
+                gridSearchResults.innerHTML = '<div class="grid-search-item">No businesses found</div>';
+                gridSearchResults.classList.add('show');
+                return;
+            }
+            
+            gridSearchResults.innerHTML = results.map(business => `
+                <div class="grid-search-item" data-id="${business.id}">
+                    <div class="grid-search-name">${business.businessName}</div>
+                    <div class="grid-search-category">ID: ${business.id} | Category: ${business.category}</div>
+                </div>
+            `).join('');
+            
+            gridSearchResults.classList.add('show');
+            
+            // Add click event to search results
+            gridSearchResults.querySelectorAll('.grid-search-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const businessId = parseInt(item.dataset.id);
+                    const business = allBusinesses.find(b => b.id === businessId);
+                    if (business) {
+                        editGrid(business);
+                        gridSearchResults.classList.remove('show');
+                        gridSearchInput.value = '';
+                    }
+                });
+            });
+        }
+        
+        // Edit grid function
+        function editGrid(business) {
+            if (!isAdminAuthenticated) {
+                showPasswordModal();
+                return;
+            }
+            
+            currentlyEditingGrid = business;
+            
+            // Open admin panel and switch to grid editing tab
+            if (!adminPanel.classList.contains('active')) {
+                toggleAdminPanel();
+            }
+            switchTab('grid');
+            
+            // Fill form with current data
+            gridBusinessName.value = business.businessName;
+            gridCategory.value = business.category;
+            gridContent.value = business.promo;
+            gridWebsiteUrl.value = business.website;
+            gridBgColor.value = business.backgroundColor;
+            gridBgColorHex.value = business.backgroundColor;
+            gridTextColor.value = business.textColor;
+            gridTextColorHex.value = business.textColor;
+            gridImageUrl.value = business.backgroundImage || '';
+            
+            // Update toggle states
+            updateToggle(toggleBold, business.boldText);
+            updateToggle(toggleBlink, business.blinkText);
+            updateToggle(toggleVerified, business.showVerified);
+            updateToggle(toggleThickBorder, business.thickBorder);
+            updateToggle(toggleThumbsUp, business.hasThumbsUp);
+            updateToggle(toggleHeart, business.hasHeart);
+            
+            // Show form
+            gridEditForm.style.display = 'block';
+        }
+        
+        // Update toggle checkbox
+        function updateToggle(toggleElement, isActive) {
+            const checkbox = toggleElement.querySelector('.toggle-checkbox');
+            if (isActive) {
+                checkbox.classList.add('active');
+            } else {
+                checkbox.classList.remove('active');
+            }
+        }
+        
+        // Toggle checkbox click handler
+        function setupToggle(toggleElement) {
+            toggleElement.addEventListener('click', () => {
+                const checkbox = toggleElement.querySelector('.toggle-checkbox');
+                checkbox.classList.toggle('active');
+            });
+        }
+        
+        // Delete grid function
+        function deleteGrid(business) {
+            if (!isAdminAuthenticated) {
+                showPasswordModal();
+                return;
+            }
+            
+            if (confirm(`Are you sure you want to delete this grid?\n\n${business.businessName}\n${business.category}: ${business.promo}`)) {
+                const index = allBusinesses.findIndex(b => b.id === business.id);
+                if (index !== -1) {
+                    allBusinesses.splice(index, 1);
+                    businessesDeletedByAdmin++;
+                    renderMixedGrid();
+                    saveSettings();
+                    alert('Grid deleted successfully!');
+                    
+                    // Clear edit form if deleting currently editing grid
+                    if (currentlyEditingGrid && currentlyEditingGrid.id === business.id) {
+                        clearGridEditForm();
+                    }
+                    
+                    updateAdminStats();
+                }
+            }
+        }
+        
+        // Save grid edits
+        function saveGridEdits() {
+            if (!currentlyEditingGrid) {
+                alert('No grid selected for editing.');
+                return;
+            }
+            
+            const business = currentlyEditingGrid;
+            
+            // Validate URL
+            if (gridWebsiteUrl.value && !isValidUrl(gridWebsiteUrl.value)) {
+                alert('Please enter a valid URL for the website.');
+                return;
+            }
+            
+            // Validate required fields
+            if (!gridBusinessName.value.trim()) {
+                alert('Please enter a business name.');
+                return;
+            }
+            
+            if (!gridCategory.value) {
+                alert('Please select a category.');
+                return;
+            }
+            
+            if (!gridContent.value.trim()) {
+                alert('Please enter grid content.');
+                return;
+            }
+            
+            // Track if this is the first edit (count as edited by admin)
+            if (!business.editedByAdmin) {
+                businessesEditedByAdmin++;
+                business.editedByAdmin = true;
+            }
+            
+            // Update business properties
+            business.businessName = gridBusinessName.value.trim();
+            business.category = gridCategory.value;
+            business.promo = gridContent.value.trim();
+            business.website = gridWebsiteUrl.value.trim() || business.website;
+            business.backgroundColor = gridBgColor.value;
+            business.textColor = gridTextColor.value;
+            business.backgroundImage = gridImageUrl.value.trim() || null;
+            business.boldText = toggleBold.querySelector('.toggle-checkbox').classList.contains('active');
+            business.blinkText = toggleBlink.querySelector('.toggle-checkbox').classList.contains('active');
+            business.showVerified = toggleVerified.querySelector('.toggle-checkbox').classList.contains('active');
+            business.thickBorder = toggleThickBorder.querySelector('.toggle-checkbox').classList.contains('active');
+            business.hasThumbsUp = toggleThumbsUp.querySelector('.toggle-checkbox').classList.contains('active');
+            business.hasHeart = toggleHeart.querySelector('.toggle-checkbox').classList.contains('active');
+            business.isCustomized = true;
+            
+            // Re-render grid
+            renderMixedGrid();
+            saveSettings();
+            
+            alert('Grid changes saved successfully!');
+        }
+        
+        // Clear grid edit form
+        function clearGridEditForm() {
+            currentlyEditingGrid = null;
+            gridEditForm.style.display = 'none';
+            gridSearchInput.value = '';
+        }
+        
+        // Show password modal
+        function showPasswordModal() {
+            passwordModal.classList.add('active');
+            passwordInput.focus();
+        }
+        
+        // Hide password modal
+        function hidePasswordModal() {
+            passwordModal.classList.remove('active');
+            passwordInput.value = '';
+            passwordError.style.display = 'none';
+        }
+        
+        // Authenticate admin
+        function authenticateAdmin() {
+            const password = passwordInput.value.trim();
+            
+            if (password === ADMIN_PASSWORD) {
+                isAdminAuthenticated = true;
+                hidePasswordModal();
+                toggleAdminPanel();
+                adminLogout.classList.add('active');
+                alert('Admin access granted! You can now edit grids.');
+                
+                // Enable admin mode on all cards
+                document.querySelectorAll('.card').forEach(card => {
+                    card.classList.add('admin-mode');
+                });
+            } else {
+                passwordError.style.display = 'block';
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        }
+        
+        // Admin logout
+        function adminLogoutFunction() {
+            if (confirm('Are you sure you want to logout?')) {
+                isAdminAuthenticated = false;
+                adminLogout.classList.remove('active');
+                
+                // Remove admin mode from all cards
+                document.querySelectorAll('.card').forEach(card => {
+                    card.classList.remove('admin-mode');
+                });
+                
+                // Close admin panel if open
+                if (adminPanel.classList.contains('active')) {
+                    toggleAdminPanel();
+                }
+                
+                alert('Logged out successfully!');
+            }
+        }
+        
+        // Add new banner
+        function addBanner() {
+            if (!isAdminAuthenticated) {
+                showPasswordModal();
+                return;
+            }
+            
+            const title = bannerTitleInput.value.trim();
+            const text = bannerTextInput.value.trim();
+            const imageUrl = bannerImageUrlInput.value.trim();
+            const linkUrl = bannerLinkUrlInput.value.trim();
+            
+            if (!title) {
+                alert('Please enter a title for the banner.');
+                return;
+            }
+            
+            if (!text) {
+                alert('Please enter text for the banner.');
+                return;
+            }
+            
+            if (!linkUrl) {
+                alert('Please enter a link URL for the banner.');
+                return;
+            }
+            
+            // Validate URL format
+            if (!isValidUrl(linkUrl)) {
+                alert('Please enter a valid URL (e.g., https://example.com or https://facebook.com/page)');
+                return;
+            }
+            
+            const newBanner = {
+                id: Date.now(),
+                title: title,
+                text: text,
+                size: selectedBannerSize,
+                color: bannerColorInput.value,
+                imageUrl: imageUrl || null,
+                linkUrl: linkUrl,
+                createdAt: new Date().toISOString(),
+                isBanner: true
+            };
+            
+            // Add to appropriate container based on size
+            if (selectedBannerSize === '6x2' || selectedBannerSize === '3x2') {
+                topBanners.push(newBanner);
+                renderTopBanners();
+            } else {
+                gridBanners.push(newBanner);
+                renderMixedGrid();
+            }
+            
+            // Reset form
+            bannerTitleInput.value = '';
+            bannerTextInput.value = '';
+            bannerImageUrlInput.value = '';
+            bannerLinkUrlInput.value = '';
+            bannerTitleInput.focus();
+            
+            // Reset image preview
+            imagePreview.style.display = 'none';
+            imagePreviewPlaceholder.style.display = 'flex';
+            imagePreview.src = '';
+            
+            saveSettings();
+            
+            // Show success message
+            const position = (selectedBannerSize === '6x2' || selectedBannerSize === '3x2') ? 'top of page' : 'mixed in grid';
+            alert(`Banner added successfully!\n\nSize: ${selectedBannerSize}\nPosition: ${position}\nLink: ${linkUrl}`);
+        }
+        
+        // Clear all banners
+        function clearBanners() {
+            if (!isAdminAuthenticated) {
+                showPasswordModal();
+                return;
+            }
+            
+            if (topBanners.length === 0 && gridBanners.length === 0) {
+                alert('No banners to clear.');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to remove ALL banners from the page?')) {
+                topBanners = [];
+                gridBanners = [];
+                renderTopBanners();
+                renderMixedGrid();
+                saveSettings();
+                alert('All banners have been removed.');
+            }
+        }
+        
+        // Validate URL
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+        
+        // Update banner preview
+        function updateBannerPreview() {
+            const title = bannerTitleInput.value || 'Preview Banner Title';
+            const text = bannerTextInput.value || 'Preview banner description text will appear here';
+            const imageUrl = bannerImageUrlInput.value.trim();
+            
+            // Clear existing preview
+            bannerPreview.innerHTML = '';
+            
+            // Add image if URL is provided
+            if (imageUrl) {
+                const img = document.createElement('img');
+                img.className = 'banner-preview-image';
+                img.src = imageUrl;
+                img.onerror = function() {
+                    this.style.display = 'none';
+                    bannerPreview.style.background = bannerColorInput.value;
+                };
+                bannerPreview.appendChild(img);
+            } else {
+                bannerPreview.style.background = bannerColorInput.value;
+            }
+            
+            // Add content overlay
+            const content = document.createElement('div');
+            content.className = 'banner-preview-content';
+            content.innerHTML = `
+                <div class="banner-title">${title}</div>
+                <div class="banner-text">${text}</div>
+            `;
+            bannerPreview.appendChild(content);
+        }
+        
+        // Update image preview
+        function updateImagePreview() {
+            const imageUrl = bannerImageUrlInput.value.trim();
+            
+            if (imageUrl) {
+                imagePreview.src = imageUrl;
+                imagePreview.onload = function() {
+                    imagePreview.style.display = 'block';
+                    imagePreviewPlaceholder.style.display = 'none';
+                };
+                imagePreview.onerror = function() {
+                    imagePreview.style.display = 'none';
+                    imagePreviewPlaceholder.style.display = 'flex';
+                    imagePreviewPlaceholder.textContent = 'Invalid image URL';
+                };
+            } else {
+                imagePreview.style.display = 'none';
+                imagePreviewPlaceholder.style.display = 'flex';
+                imagePreviewPlaceholder.textContent = 'No image selected';
+            }
+        }
+        
+        // Update admin panel stats
+        function updateAdminStats() {
+            const filtered = filterBusinesses();
+            const verifiedCount = allBusinesses.filter(b => b.verified).length;
+            const uniqueCategories = [...new Set(allBusinesses.map(b => b.category))].length;
+            const customizedGrids = allBusinesses.filter(b => b.isCustomized).length;
+            const imageGrids = allBusinesses.filter(b => b.backgroundImage).length;
+            const boldTextCount = allBusinesses.filter(b => b.boldText).length;
+            const blinkTextCount = allBusinesses.filter(b => b.blinkText).length;
+            const verifiedBadgeCount = allBusinesses.filter(b => b.showVerified).length;
+            const thickBorderCount = allBusinesses.filter(b => b.thickBorder).length;
+            const thumbsUpCount = allBusinesses.filter(b => b.hasThumbsUp).length;
+            const heartCount = allBusinesses.filter(b => b.hasHeart).length;
+            const addedByAdminCount = allBusinesses.filter(b => b.addedByAdmin).length;
+            const editedByAdminCount = allBusinesses.filter(b => b.editedByAdmin).length;
+            const totalViews = allBusinesses.reduce((sum, b) => sum + b.views, 0);
+            const clickRate = totalViews > 0 ? ((totalClicks / totalViews) * 100).toFixed(1) : 0;
+            
+            adminTotalCards.textContent = TOTAL_CARDS.toLocaleString();
+            adminVerifiedCount.textContent = verifiedCount.toLocaleString();
+            adminVisibleCards.textContent = filtered.length.toLocaleString();
+            adminCategories.textContent = uniqueCategories;
+            adminActiveBanners.textContent = (topBanners.length + gridBanners.length).toLocaleString();
+            adminAddedByAdmin.textContent = addedByAdminCount.toLocaleString();
+            adminEditedByAdmin.textContent = editedByAdminCount.toLocaleString();
+            adminDeletedByAdmin.textContent = businessesDeletedByAdmin.toLocaleString();
+            adminBoldText.textContent = boldTextCount.toLocaleString();
+            adminBlinkText.textContent = blinkTextCount.toLocaleString();
+            adminVerifiedBadge.textContent = verifiedBadgeCount.toLocaleString();
+            adminThickBorder.textContent = thickBorderCount.toLocaleString();
+            adminThumbsUpIcon.textContent = thumbsUpCount.toLocaleString();
+            adminHeartIcon.textContent = heartCount.toLocaleString();
+            adminTotalClicks.textContent = totalClicks.toLocaleString();
+            adminShuffleCount.textContent = shuffleCount.toLocaleString();
+            adminTotalViews.textContent = totalViews.toLocaleString();
+            adminClickRate.textContent = `${clickRate}%`;
+        }
+        
+        // Generate detailed stats data
+        function generateDetailedStatsData() {
+            const filtered = filterBusinesses();
+            const verifiedCount = allBusinesses.filter(b => b.verified).length;
+            const uniqueCategories = [...new Set(allBusinesses.map(b => b.category))].length;
+            const customizedGrids = allBusinesses.filter(b => b.isCustomized).length;
+            const imageGrids = allBusinesses.filter(b => b.backgroundImage).length;
+            const boldTextCount = allBusinesses.filter(b => b.boldText).length;
+            const blinkTextCount = allBusinesses.filter(b => b.blinkText).length;
+            const verifiedBadgeCount = allBusinesses.filter(b => b.showVerified).length;
+            const thickBorderCount = allBusinesses.filter(b => b.thickBorder).length;
+            const thumbsUpCount = allBusinesses.filter(b => b.hasThumbsUp).length;
+            const heartCount = allBusinesses.filter(b => b.hasHeart).length;
+            const addedByAdminCount = allBusinesses.filter(b => b.addedByAdmin).length;
+            const editedByAdminCount = allBusinesses.filter(b => b.editedByAdmin).length;
+            const totalViews = allBusinesses.reduce((sum, b) => sum + b.views, 0);
+            const clickRate = totalViews > 0 ? ((totalClicks / totalViews) * 100).toFixed(1) : 0;
+            
+            return {
+                totalCards: TOTAL_CARDS,
+                verifiedCount,
+                visibleCards: filtered.length,
+                categories: uniqueCategories,
+                activeBanners: topBanners.length + gridBanners.length,
+                customizedGrids,
+                imageGrids,
+                boldTextCount,
+                blinkTextCount,
+                verifiedBadgeCount,
+                thickBorderCount,
+                thumbsUpCount,
+                heartCount,
+                addedByAdminCount,
+                editedByAdminCount,
+                deletedByAdminCount: businessesDeletedByAdmin,
+                businessesAddedByAdmin: businessesAddedByAdmin,
+                totalClicks,
+                shuffleCount,
+                totalViews,
+                clickRate,
+                date: new Date().toISOString(),
+                allBusinesses: allBusinesses,
+                topBanners: topBanners,
+                gridBanners: gridBanners,
+                categoriesList: categories
+            };
+        }
+        
+        // Download stats as TXT with all details
+        function downloadStatsTxt() {
+            const stats = generateDetailedStatsData();
+            const content = formatDetailedStatsAsTxt(stats);
+            downloadFile(content, 'business_stats_detailed.txt', 'text/plain');
+        }
+        
+        // Download stats as XLS (CSV format) with all details
+        function downloadStatsXls() {
+            const stats = generateDetailedStatsData();
+            const content = formatDetailedStatsAsCsv(stats);
+            downloadFile(content, 'business_stats_detailed.csv', 'text/csv');
+        }
+        
+        // Format detailed stats as TXT
+        function formatDetailedStatsAsTxt(stats) {
+            let content = `DETAILED BUSINESS STATISTICS REPORT
+Generated: ${new Date(stats.date).toLocaleString()}
+
+==============================================================================
+
+OVERVIEW:
+---------
+Total Businesses: ${stats.totalCards.toLocaleString()}
+Verified Businesses: ${stats.verifiedCount.toLocaleString()}
+Currently Displayed: ${stats.visibleCards.toLocaleString()}
+Categories: ${stats.categories}
+
+ADMIN ACTIVITY:
+---------------
+Businesses Added by Admin: ${stats.addedByAdminCount}
+Businesses Edited by Admin: ${stats.editedByAdminCount}
+Businesses Deleted by Admin: ${stats.deletedByAdminCount}
+Total Admin Added Count: ${stats.businessesAddedByAdmin}
+
+FORMATTING STATS:
+-----------------
+Bold Text: ${stats.boldTextCount}
+Blinking Text: ${stats.blinkTextCount}
+Verified Badge: ${stats.verifiedBadgeCount}
+Thick Border: ${stats.thickBorderCount}
+Thumbs Up Icon: ${stats.thumbsUpCount}
+Heart Icon: ${stats.heartCount}
+
+BANNERS:
+--------
+Active Banners: ${stats.activeBanners.toLocaleString()}
+Top Banners (6x2/3x2): ${stats.topBanners.length}
+Grid Banners (1x2/2x2): ${stats.gridBanners.length}
+
+GRID CUSTOMIZATIONS:
+-------------------
+Customized Grids: ${stats.customizedGrids.toLocaleString()}
+Grids with Image Backgrounds: ${stats.imageGrids.toLocaleString()}
+
+PERFORMANCE:
+------------
+Total Views: ${stats.totalViews.toLocaleString()}
+Total Clicks: ${stats.totalClicks.toLocaleString()}
+Click-Through Rate: ${stats.clickRate}%
+Shuffles Today: ${stats.shuffleCount}
+
+==============================================================================
+
+CATEGORY DISTRIBUTION:
+----------------------`;
+            
+            stats.categoriesList.forEach(cat => {
+                const count = stats.allBusinesses.filter(b => b.category === cat.name).length;
+                const verifiedInCat = stats.allBusinesses.filter(b => b.category === cat.name && b.verified).length;
+                const addedByAdminInCat = stats.allBusinesses.filter(b => b.category === cat.name && b.addedByAdmin).length;
+                content += `\n\n${cat.name}:`;
+                content += `\n  Total: ${count} businesses (${((count / stats.totalCards) * 100).toFixed(1)}%)`;
+                content += `\n  Verified: ${verifiedInCat} (${verifiedInCat > 0 ? ((verifiedInCat / count) * 100).toFixed(1) : 0}%)`;
+                content += `\n  Added by Admin: ${addedByAdminInCat}`;
+                content += `\n  Click Rate: ${count > 0 ? ((stats.allBusinesses.filter(b => b.category === cat.name).reduce((sum, b) => sum + b.clicks, 0) / count) * 100).toFixed(1) : 0}%`;
+            });
+            
+            content += '\n\n==============================================================================\n\nBUSINESSES ADDED BY ADMIN:\n--------------------------';
+            
+            const addedByAdmin = stats.allBusinesses.filter(b => b.addedByAdmin);
+            if (addedByAdmin.length > 0) {
+                addedByAdmin.forEach((business, index) => {
+                    content += `\n\n${index + 1}. ${business.businessName}`;
+                    content += `\n   ID: ${business.id}`;
+                    content += `\n   Category: ${business.category}`;
+                    content += `\n   Verified: ${business.verified ? 'Yes' : 'No'}`;
+                    content += `\n   Promo: ${business.promo}`;
+                    content += `\n   Website: ${business.website}`;
+                    content += `\n   Views: ${business.views}`;
+                    content += `\n   Clicks: ${business.clicks}`;
+                    content += `\n   Click Rate: ${business.views > 0 ? ((business.clicks / business.views) * 100).toFixed(1) : 0}%`;
+                });
+            } else {
+                content += '\nNo businesses added by admin.';
+            }
+            
+            content += '\n\n==============================================================================\n\nALL BUSINESSES DETAILS:\n-----------------------';
+            
+            stats.allBusinesses.forEach((business, index) => {
+                content += `\n\n${index + 1}. ${business.businessName}`;
+                content += `\n   ID: ${business.id}`;
+                content += `\n   Category: ${business.category}`;
+                content += `\n   Verified: ${business.verified ? 'Yes' : 'No'}`;
+                content += `\n   Promo: ${business.promo}`;
+                content += `\n   Website: ${business.website}`;
+                content += `\n   Views: ${business.views}`;
+                content += `\n   Clicks: ${business.clicks}`;
+                content += `\n   Click Rate: ${business.views > 0 ? ((business.clicks / business.views) * 100).toFixed(1) : 0}%`;
+                content += `\n   Last Position: ${business.lastPosition}`;
+                content += `\n   Customized: ${business.isCustomized ? 'Yes' : 'No'}`;
+                content += `\n   Added by Admin: ${business.addedByAdmin ? 'Yes' : 'No'}`;
+                content += `\n   Edited by Admin: ${business.editedByAdmin ? 'Yes' : 'No'}`;
+                content += `\n   Formatting: ${business.boldText ? 'Bold ' : ''}${business.blinkText ? 'Blink ' : ''}${business.thickBorder ? 'Thick Border ' : ''}${business.hasThumbsUp ? 'Thumbs Up ' : ''}${business.hasHeart ? 'Heart ' : ''}`;
+                content += `\n   Background: ${business.backgroundImage ? 'Image' : 'Color'}`;
+            });
+            
+            content += '\n\n==============================================================================\n\nTOP PERFORMING BUSINESSES:\n--------------------------';
+            
+            stats.allBusinesses
+                .sort((a, b) => b.clicks - a.clicks)
+                .slice(0, 20)
+                .forEach((b, i) => {
+                    content += `\n\n${i + 1}. ${b.businessName}`;
+                    content += `\n   Category: ${b.category}`;
+                    content += `\n   Clicks: ${b.clicks}`;
+                    content += `\n   Views: ${b.views}`;
+                    content += `\n   Click Rate: ${b.views > 0 ? ((b.clicks / b.views) * 100).toFixed(1) : 0}%`;
+                    content += `\n   Promo: ${b.promo}`;
+                });
+            
+            content += '\n\n==============================================================================\n\nACTIVE BANNERS:\n---------------';
+            
+            if (stats.topBanners.length > 0) {
+                content += '\n\nTOP BANNERS:';
+                stats.topBanners.forEach((banner, i) => {
+                    content += `\n\n${i + 1}. ${banner.title}`;
+                    content += `\n   Size: ${banner.size}`;
+                    content += `\n   Text: ${banner.text}`;
+                    content += `\n   Link: ${banner.linkUrl}`;
+                    content += `\n   Created: ${new Date(banner.createdAt).toLocaleString()}`;
+                });
+            }
+            
+            if (stats.gridBanners.length > 0) {
+                content += '\n\nGRID BANNERS:';
+                stats.gridBanners.forEach((banner, i) => {
+                    content += `\n\n${i + 1}. ${banner.title}`;
+                    content += `\n   Size: ${banner.size}`;
+                    content += `\n   Text: ${banner.text}`;
+                    content += `\n   Link: ${banner.linkUrl}`;
+                    content += `\n   Created: ${new Date(banner.createdAt).toLocaleString()}`;
+                });
+            }
+            
+            return content;
+        }
+        
+        // Format detailed stats as CSV
+        function formatDetailedStatsAsCsv(stats) {
+            const rows = [
+                ['DETAILED BUSINESS STATISTICS REPORT'],
+                [`Generated: ${new Date(stats.date).toLocaleString()}`],
+                [''],
+                ['OVERVIEW', ''],
+                ['Total Businesses', stats.totalCards],
+                ['Verified Businesses', stats.verifiedCount],
+                ['Currently Displayed', stats.visibleCards],
+                ['Categories', stats.categories],
+                ['Businesses Added by Admin', stats.addedByAdminCount],
+                ['Businesses Edited by Admin', stats.editedByAdminCount],
+                ['Businesses Deleted by Admin', stats.deletedByAdminCount],
+                ['Total Admin Added Count', stats.businessesAddedByAdmin],
+                ['Active Banners', stats.activeBanners],
+                ['Customized Grids', stats.customizedGrids],
+                ['Image Background Grids', stats.imageGrids],
+                ['Bold Text', stats.boldTextCount],
+                ['Blinking Text', stats.blinkTextCount],
+                ['Verified Badge', stats.verifiedBadgeCount],
+                ['Thick Border', stats.thickBorderCount],
+                ['Thumbs Up Icon', stats.thumbsUpCount],
+                ['Heart Icon', stats.heartCount],
+                ['Total Views', stats.totalViews],
+                ['Total Clicks', stats.totalClicks],
+                ['Click-Through Rate', stats.clickRate + '%'],
+                ['Shuffles Today', stats.shuffleCount],
+                ['', ''],
+                ['CATEGORY DISTRIBUTION', ''],
+                ['Category', 'Total', 'Verified', 'Added by Admin', 'Verification Rate', 'Avg Click Rate']
+            ];
+            
+            // Add category distribution
+            stats.categoriesList.forEach(cat => {
+                const count = stats.allBusinesses.filter(b => b.category === cat.name).length;
+                const verifiedInCat = stats.allBusinesses.filter(b => b.category === cat.name && b.verified).length;
+                const addedByAdminInCat = stats.allBusinesses.filter(b => b.category === cat.name && b.addedByAdmin).length;
+                const totalClicksInCat = stats.allBusinesses.filter(b => b.category === cat.name).reduce((sum, b) => sum + b.clicks, 0);
+                const avgClickRate = count > 0 ? ((totalClicksInCat / count) * 100).toFixed(1) + '%' : '0%';
+                
+                rows.push([
+                    cat.name,
+                    count,
+                    verifiedInCat,
+                    addedByAdminInCat,
+                    verifiedInCat > 0 ? ((verifiedInCat / count) * 100).toFixed(1) + '%' : '0%',
+                    avgClickRate
+                ]);
+            });
+            
+            rows.push(['', '', '', '', '', '']);
+            rows.push(['BUSINESSES ADDED BY ADMIN', '', '', '', '', '']);
+            rows.push(['ID', 'Business Name', 'Category', 'Verified', 'Clicks', 'Views', 'Click Rate', 'Promo']);
+            
+            // Add businesses added by admin
+            const addedByAdmin = stats.allBusinesses.filter(b => b.addedByAdmin);
+            if (addedByAdmin.length > 0) {
+                addedByAdmin.forEach(business => {
+                    rows.push([
+                        business.id,
+                        `"${business.businessName}"`,
+                        business.category,
+                        business.verified ? 'Yes' : 'No',
+                        business.clicks,
+                        business.views,
+                        business.views > 0 ? ((business.clicks / business.views) * 100).toFixed(1) + '%' : '0%',
+                        `"${business.promo}"`
+                    ]);
+                });
+            } else {
+                rows.push(['No businesses added by admin', '', '', '', '', '', '', '']);
+            }
+            
+            rows.push(['', '', '', '', '', '', '', '']);
+            rows.push(['ALL BUSINESSES DETAILS', '', '', '', '', '', '', '', '', '', '', '', '', '', '']);
+            rows.push([
+                'ID',
+                'Business Name',
+                'Category',
+                'Verified',
+                'Added by Admin',
+                'Edited by Admin',
+                'Promo',
+                'Website',
+                'Views',
+                'Clicks',
+                'Click Rate',
+                'Last Position',
+                'Customized',
+                'Formatting',
+                'Background'
+            ]);
+            
+            // Add all businesses
+            stats.allBusinesses.forEach(business => {
+                const formatting = [];
+                if (business.boldText) formatting.push('Bold');
+                if (business.blinkText) formatting.push('Blink');
+                if (business.thickBorder) formatting.push('Thick Border');
+                if (business.hasThumbsUp) formatting.push('Thumbs Up');
+                if (business.hasHeart) formatting.push('Heart');
+                
+                rows.push([
+                    business.id,
+                    `"${business.businessName}"`,
+                    business.category,
+                    business.verified ? 'Yes' : 'No',
+                    business.addedByAdmin ? 'Yes' : 'No',
+                    business.editedByAdmin ? 'Yes' : 'No',
+                    `"${business.promo}"`,
+                    business.website,
+                    business.views,
+                    business.clicks,
+                    business.views > 0 ? ((business.clicks / business.views) * 100).toFixed(1) + '%' : '0%',
+                    business.lastPosition,
+                    business.isCustomized ? 'Yes' : 'No',
+                    formatting.join(', '),
+                    business.backgroundImage ? 'Image' : 'Color'
+                ]);
+            });
+            
+            return rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+        }
+        
+        // Download file helper
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Toggle admin panel
+        function toggleAdminPanel() {
+            if (!isAdminAuthenticated) {
+                showPasswordModal();
+                return;
+            }
+            
+            adminPanel.classList.toggle('active');
+            adminOverlay.classList.toggle('active');
+            updateAdminStats();
+        }
+        
+        // Switch admin tabs
+        function switchTab(tabName) {
+            // Update tab buttons
+            adminTabs.forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.tab === tabName) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            // Show selected tab content
+            document.querySelectorAll('.admin-tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            const tabContent = document.getElementById(`${tabName}Tab`);
+            if (tabContent) {
+                tabContent.style.display = 'block';
+            }
+        }
+        
+        // Show inquiry form
+        function showInquiryForm() {
+            const form = document.createElement('div');
+            form.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: white;
+                padding: 30px;
+                border-radius: 12px;
+                box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+                z-index: 2000;
+                width: 90%;
+                max-width: 400px;
+            `;
+            
+            form.innerHTML = `
+                <h3 style="margin-bottom: 20px; color: var(--text-dark);">Send Inquiry</h3>
+                <div style="margin-bottom: 15px;">
+                    <input type="text" placeholder="Your Name" style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px;">
+                    <input type="email" placeholder="Your Email" style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px;">
+                    <textarea placeholder="Your Message" rows="4" style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 15px; resize: vertical;"></textarea>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="this.parentElement.parentElement.remove()" style="flex: 1; padding: 12px; background: var(--text-light); color: white; border: none; border-radius: 8px; cursor: pointer;">
+                        Cancel
+                    </button>
+                    <button onclick="alert('Inquiry sent successfully!'); this.parentElement.parentElement.remove()" style="flex: 1; padding: 12px; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                        Send
+                    </button>
+                </div>
+            `;
+            
+            // Overlay
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                backdrop-filter: blur(4px);
+                z-index: 1999;
+            `;
+            
+            overlay.onclick = () => {
+                document.body.removeChild(form);
+                document.body.removeChild(overlay);
+            };
+            
+            document.body.appendChild(overlay);
+            document.body.appendChild(form);
+        }
+        
+        // Add new business (admin only)
+        function addNewBusiness() {
+            if (!isAdminAuthenticated) {
+                showPasswordModal();
+                return;
+            }
+            
+            const businessName = prompt('Enter business name:');
+            if (!businessName) return;
+            
+            const website = prompt('Enter website URL (e.g., https://facebook.com/page):');
+            if (!website || !isValidUrl(website)) {
+                alert('Please enter a valid URL');
+                return;
+            }
+            
+            const category = prompt('Enter category (Tech, Retail, Food, etc.):');
+            if (!category) return;
+            
+            const promo = prompt('Enter promotion text:');
+            if (!promo) return;
+            
+            const isVerified = confirm('Is this business verified?');
+            
+            const newBusiness = {
+                id: allBusinesses.length + 1,
+                businessName: businessName,
+                category: category,
+                promo: promo.length > 70 ? promo.substring(0, 70) + '...' : promo,
+                verified: isVerified,
+                website: website,
+                views: 0,
+                clicks: 0,
+                lastPosition: 0,
+                backgroundColor: '#ffffff',
+                textColor: '#1f2937',
+                boldText: false,
+                blinkText: false,
+                thickBorder: false,
+                showVerified: isVerified,
+                hasThumbsUp: false,
+                hasHeart: false,
+                backgroundImage: null,
+                isCustomized: true,
+                addedByAdmin: true,
+                editedByAdmin: false
+            };
+            
+            allBusinesses.push(newBusiness);
+            businessesAddedByAdmin++;
+            renderMixedGrid();
+            saveSettings();
+            
+            alert(`New business added successfully!\n\n${businessName}\nCategory: ${category}\nVerified: ${isVerified ? 'Yes' : 'No'}`);
+        }
+        
+        // Manual shuffle
+        function shuffleNow() {
+            shuffleBusinesses();
+            showShuffleNotification('Grid manually shuffled!');
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            // Password authentication
+            passwordSubmit.addEventListener('click', authenticateAdmin);
+            passwordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') authenticateAdmin();
+            });
+            
+            // Search input
+            searchInput.addEventListener('input', function(e) {
+                currentSearch = e.target.value.toLowerCase();
+                renderMixedGrid();
+            });
+            
+            // Filter buttons
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.getAttribute('data-filter');
+                    renderMixedGrid();
+                });
+            });
+            
+            // Scroll indicator
+            window.addEventListener('scroll', () => {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                if (scrollTop > 100) {
+                    scrollIndicator.textContent = `${Math.floor(scrollTop/20)}/1000`;
+                    if (scrollIndicator.style.display === 'none') {
+                        scrollIndicator.style.display = 'block';
+                        scrollIndicator.style.opacity = '0.7';
+                    }
+                }
+            });
+            
+            // Admin icon click
+            adminIcon.addEventListener('click', toggleAdminPanel);
+            
+            // Inquiry icon click
+            inquiryIcon.addEventListener('click', showInquiryForm);
+            
+            // Admin logout
+            adminLogout.addEventListener('click', adminLogoutFunction);
+            
+            // Admin panel close
+            adminClose.addEventListener('click', toggleAdminPanel);
+            adminOverlay.addEventListener('click', toggleAdminPanel);
+            
+            // Admin tabs
+            adminTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    switchTab(tab.dataset.tab);
+                });
+            });
+            
+            // Banner size selection
+            bannerSizeOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    bannerSizeOptions.forEach(opt => opt.classList.remove('active'));
+                    option.classList.add('active');
+                    selectedBannerSize = option.dataset.size;
+                    updateBannerPreview();
+                });
+            });
+            
+            // Banner form updates
+            bannerTitleInput.addEventListener('input', updateBannerPreview);
+            bannerTextInput.addEventListener('input', updateBannerPreview);
+            bannerImageUrlInput.addEventListener('input', () => {
+                updateImagePreview();
+                updateBannerPreview();
+            });
+            bannerLinkUrlInput.addEventListener('input', updateBannerPreview);
+            bannerColorInput.addEventListener('input', updateBannerPreview);
+            
+            // Add banner button
+            addBannerBtn.addEventListener('click', addBanner);
+            
+            // Clear banners button
+            clearBannerBtn.addEventListener('click', clearBanners);
+            
+            // Add business button
+            addBusinessBtn.addEventListener('click', addNewBusiness);
+            
+            // Shuffle now button
+            shuffleNowBtn.addEventListener('click', shuffleNow);
+            
+            // Pause shuffle button
+            pauseShuffleBtn.addEventListener('click', toggleShufflePause);
+            
+            // Save settings button
+            saveSettingsBtn.addEventListener('click', saveSettings);
+            
+            // Download buttons
+            downloadTxtBtn.addEventListener('click', downloadStatsTxt);
+            downloadXlsBtn.addEventListener('click', downloadStatsXls);
+            
+            // Grid search
+            gridSearchInput.addEventListener('input', function(e) {
+                searchBusinesses(this.value);
+            });
+            
+            // Close search results when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.grid-search-container')) {
+                    gridSearchResults.classList.remove('show');
+                }
+            });
+            
+            // Grid editing toggles
+            setupToggle(toggleBold);
+            setupToggle(toggleBlink);
+            setupToggle(toggleVerified);
+            setupToggle(toggleThickBorder);
+            setupToggle(toggleThumbsUp);
+            setupToggle(toggleHeart);
+            
+            // Color picker sync
+            gridBgColor.addEventListener('input', function() {
+                gridBgColorHex.value = this.value;
+            });
+            
+            gridBgColorHex.addEventListener('input', function() {
+                if (this.value.match(/^#[0-9A-F]{6}$/i)) {
+                    gridBgColor.value = this.value;
+                }
+            });
+            
+            gridTextColor.addEventListener('input', function() {
+                gridTextColorHex.value = this.value;
+            });
+            
+            gridTextColorHex.addEventListener('input', function() {
+                if (this.value.match(/^#[0-9A-F]{6}$/i)) {
+                    gridTextColor.value = this.value;
+                }
+            });
+            
+            // Save grid button
+            saveGridBtn.addEventListener('click', saveGridEdits);
+            
+            // Delete grid button
+            deleteGridBtn.addEventListener('click', () => {
+                if (currentlyEditingGrid) {
+                    deleteGrid(currentlyEditingGrid);
+                } else {
+                    alert('No grid selected for deletion.');
+                }
+            });
+            
+            // Remove banner (event delegation)
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('banner-close')) {
+                    if (!isAdminAuthenticated) {
+                        showPasswordModal();
+                        return;
+                    }
+                    
+                    const index = parseInt(e.target.dataset.index);
+                    const isTop = e.target.dataset.top === 'true';
+                    
+                    if (confirm('Remove this banner?')) {
+                        if (isTop) {
+                            topBanners.splice(index, 1);
+                            renderTopBanners();
+                        } else {
+                            gridBanners.splice(index, 1);
+                            renderMixedGrid();
+                        }
+                        saveSettings();
+                    }
+                }
+            });
+            
+            // Close hover cards when clicking elsewhere
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.enhanced-hover-card') && !e.target.closest('.card')) {
+                    if (currentHoverCard) {
+                        currentHoverCard.classList.remove('show');
+                        currentHoverCard = null;
+                    }
+                }
+            });
+            
+            // Escape key to close admin panel
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (adminPanel.classList.contains('active')) {
+                        toggleAdminPanel();
+                    }
+                    if (passwordModal.classList.contains('active')) {
+                        hidePasswordModal();
+                    }
+                    gridSearchResults.classList.remove('show');
+                }
+            });
+            
+            // Enter key to submit banner form
+            bannerTitleInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addBanner();
+            });
+            
+            bannerTextInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addBanner();
+            });
+            
+            bannerImageUrlInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addBanner();
+            });
+            
+            bannerLinkUrlInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addBanner();
+            });
+            
+            // Grid click handler for admin
+            gridContainer.addEventListener('click', (e) => {
+                const card = e.target.closest('.card');
+                if (card && isAdminAuthenticated) {
+                    const businessId = parseInt(card.dataset.id);
+                    const business = allBusinesses.find(b => b.id === businessId);
+                    if (business) {
+                        editGrid(business);
+                    }
+                }
+            });
+        }
+        
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
